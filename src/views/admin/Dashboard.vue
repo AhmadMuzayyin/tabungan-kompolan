@@ -37,7 +37,6 @@
           <div class="stats-icon transactions">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
               <polyline points="16 7 22 7 22 13"></polyline>
             </svg>
           </div>
@@ -75,7 +74,7 @@
           <div class="card-header">
             <h3>Transaksi Bulan Ini</h3>
             <div class="card-actions">
-              <select v-model="transactionPeriod" @change="loadChartData">
+              <select v-model="transactionPeriod" @change="loadChartData" class="period-select">
                 <option value="week">7 Hari Terakhir</option>
                 <option value="month">Bulan Ini</option>
                 <option value="quarter">3 Bulan Terakhir</option>
@@ -92,7 +91,7 @@
           <div class="card-header">
             <h3>Perbandingan Tabungan vs Penarikan</h3>
             <div class="card-actions">
-              <select v-model="comparisonPeriod" @change="loadChartData">
+              <select v-model="comparisonPeriod" @change="loadChartData" class="period-select">
                 <option value="month">Bulan Ini</option>
                 <option value="quarter">3 Bulan Terakhir</option>
                 <option value="year">Tahun Ini</option>
@@ -118,7 +117,7 @@
               <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
               <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path>
             </svg>
-            Refresh
+            <span class="btn-text">Refresh</span>
           </button>
         </div>
 
@@ -642,6 +641,9 @@ onMounted(async () => {
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stats-link {
@@ -687,7 +689,7 @@ onMounted(async () => {
   color: var(--text-color);
 }
 
-.card-actions select {
+.period-select {
   padding: 6px 12px;
   border-radius: 6px;
   border: 1px solid #d1d5db;
@@ -760,7 +762,6 @@ onMounted(async () => {
 }
 
 .activity-icon {
-  margin-left: 30px;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -809,9 +810,18 @@ onMounted(async () => {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .stats-container {
     grid-template-columns: 1fr;
+  }
+
+  .stats-card {
+    padding: 16px;
+  }
+
+  .stats-icon {
+    width: 40px;
+    height: 40px;
   }
 
   .stats-value {
@@ -823,5 +833,44 @@ onMounted(async () => {
     align-items: flex-start;
     gap: 8px;
   }
+
+  .chart-content {
+    height: 250px;
+  }
+
+  .activity-timeline::before {
+    left: 18px;
+  }
+
+  .activity-item {
+    padding: 12px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-container {
+    gap: 12px;
+  }
+
+  .period-select {
+    width: 100%;
+  }
+
+  .chart-content {
+    height: 200px;
+  }
+
+  .btn-text {
+    display: none;
+  }
+
+  .refresh-btn {
+    padding: 6px;
+  }
+
+  .activity-text {
+    font-size: 0.85rem;
+  }
 }
 </style>
+<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>

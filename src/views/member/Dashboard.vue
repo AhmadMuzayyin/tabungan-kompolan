@@ -163,7 +163,6 @@ const loadBalanceData = async () => {
   try {
     // Get current balance
     currentBalance.value = await transactionStore.getUserBalance(authStore.user.uid);
-    console.log('Current balance:', currentBalance.value);
 
     // Set last update time
     lastUpdate.value = formatDate(new Date());

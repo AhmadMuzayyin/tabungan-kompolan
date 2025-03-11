@@ -18,7 +18,7 @@
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
-          Tambah Anggota
+          <span class="btn-text">Tambah Anggota</span>
         </button>
       </div>
 
@@ -41,80 +41,160 @@
           <p>Tambahkan anggota baru untuk mulai mengelola tabungan organisasi.</p>
         </div>
 
-        <div v-else class="table-responsive">
-          <table class="members-table">
-            <thead>
-              <tr>
-                <th>Anggota</th>
-                <th>Email</th>
-                <th>Tanggal Gabung</th>
-                <th>Saldo</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="member in filteredMembers" :key="member.id">
-                <td>
-                  <div class="member-info">
-                    <div class="member-avatar">
-                      <img v-if="member.photoURL" :src="member.photoURL" alt="Avatar" />
-                      <span v-else>{{ getInitials(member.name) }}</span>
+        <div v-else>
+          <!-- Tampilan tabel untuk desktop -->
+          <div class="table-responsive desktop-view">
+            <table class="members-table">
+              <thead>
+                <tr>
+                  <th>Anggota</th>
+                  <th>Email</th>
+                  <th>Tanggal Gabung</th>
+                  <th>Saldo</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="member in filteredMembers" :key="member.id">
+                  <td>
+                    <div class="member-info">
+                      <div class="member-avatar">
+                        <img v-if="member.photoURL" :src="member.photoURL" alt="Avatar" />
+                        <span v-else>{{ getInitials(member.name) }}</span>
+                      </div>
+                      <div>
+                        <div class="member-name">{{ member.name }}</div>
+                        <div class="member-id">ID: {{ member.id.substring(0, 8) }}...</div>
+                      </div>
                     </div>
-                    <div>
-                      <div class="member-name">{{ member.name }}</div>
-                      <div class="member-id">ID: {{ member.id.substring(0, 8) }}...</div>
+                  </td>
+                  <td>{{ member.email }}</td>
+                  <td>{{ formatDate(member.createdAt) }}</td>
+                  <td>Rp {{ formatCurrency(member.balance) }}</td>
+                  <td>
+                    <span class="status-badge" :class="member.active ? 'active' : 'inactive'">
+                      {{ member.active ? 'Aktif' : 'Tidak Aktif' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="action-btn view" title="Lihat Detail" @click="viewMemberDetails(member)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      </button>
+
+                      <button class="action-btn edit" title="Edit Anggota" @click="editMember(member)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                      </button>
+
+                      <button v-if="member.active" class="action-btn deactivate" title="Nonaktifkan Anggota"
+                        @click="deactivateMember(member)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="15" y1="9" x2="9" y2="15"></line>
+                          <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                      </button>
+
+                      <button v-else class="action-btn activate" title="Aktifkan Anggota"
+                        @click="activateMember(member)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                      </button>
                     </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tampilan kartu untuk mobile -->
+          <div class="mobile-view">
+            <div v-for="member in filteredMembers" :key="member.id" class="member-card">
+              <div class="member-card-header">
+                <div class="member-info">
+                  <div class="member-avatar">
+                    <img v-if="member.photoURL" :src="member.photoURL" alt="Avatar" />
+                    <span v-else>{{ getInitials(member.name) }}</span>
                   </div>
-                </td>
-                <td>{{ member.email }}</td>
-                <td>{{ formatDate(member.createdAt) }}</td>
-                <td>Rp {{ formatCurrency(member.balance) }}</td>
-                <td>
-                  <span class="status-badge" :class="member.active ? 'active' : 'inactive'">
-                    {{ member.active ? 'Aktif' : 'Tidak Aktif' }}
-                  </span>
-                </td>
-                <td>
-                  <div class="action-buttons">
-                    <button class="action-btn view" title="Lihat Detail" @click="viewMemberDetails(member)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-
-                    <button class="action-btn edit" title="Edit Anggota" @click="editMember(member)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                      </svg>
-                    </button>
-
-                    <button v-if="member.active" class="action-btn deactivate" title="Nonaktifkan Anggota"
-                      @click="deactivateMember(member)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="15" y1="9" x2="9" y2="15"></line>
-                        <line x1="9" y1="9" x2="15" y2="15"></line>
-                      </svg>
-                    </button>
-
-                    <button v-else class="action-btn activate" title="Aktifkan Anggota" @click="activateMember(member)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                      </svg>
-                    </button>
+                  <div>
+                    <div class="member-name">{{ member.name }}</div>
+                    <div class="member-email">{{ member.email }}</div>
                   </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+                <span class="status-badge" :class="member.active ? 'active' : 'inactive'">
+                  {{ member.active ? 'Aktif' : 'Tidak Aktif' }}
+                </span>
+              </div>
+
+              <div class="member-card-body">
+                <div class="member-detail">
+                  <span class="detail-label">Tanggal Gabung:</span>
+                  <span class="detail-value">{{ formatDate(member.createdAt) }}</span>
+                </div>
+                <div class="member-detail">
+                  <span class="detail-label">Saldo:</span>
+                  <span class="detail-value">Rp {{ formatCurrency(member.balance) }}</span>
+                </div>
+                <div class="member-detail">
+                  <span class="detail-label">ID:</span>
+                  <span class="detail-value">{{ member.id.substring(0, 8) }}...</span>
+                </div>
+              </div>
+
+              <div class="member-card-footer">
+                <button class="action-btn view" title="Lihat Detail" @click="viewMemberDetails(member)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <span>Detail</span>
+                </button>
+
+                <button class="action-btn edit" title="Edit Anggota" @click="editMember(member)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  <span>Edit</span>
+                </button>
+
+                <button v-if="member.active" class="action-btn deactivate" title="Nonaktifkan Anggota"
+                  @click="deactivateMember(member)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                  <span>Nonaktifkan</span>
+                </button>
+
+                <button v-else class="action-btn activate" title="Aktifkan Anggota" @click="activateMember(member)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  <span>Aktifkan</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -322,7 +402,6 @@
     </div>
   </AdminLayout>
 </template>
-
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
@@ -865,6 +944,75 @@ onMounted(async () => {
   background-color: #f9fafb;
 }
 
+/* Mobile view card styles */
+.mobile-view {
+  display: none;
+}
+
+.member-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.member-card-header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.member-email {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.member-card-body {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.member-detail {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.member-detail:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.detail-value {
+  font-weight: 500;
+  text-align: right;
+}
+
+.member-card-footer {
+  padding: 12px 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.member-card-footer .action-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
 .member-info {
   display: flex;
   align-items: center;
@@ -1001,6 +1149,7 @@ onMounted(async () => {
   max-height: 90vh;
   overflow-y: auto;
   z-index: 51;
+  margin: 0 16px;
 }
 
 .modal-container.small {
@@ -1388,22 +1537,92 @@ onMounted(async () => {
 }
 
 /* Responsive adjustments */
+@media (max-width: 1024px) {
+  .desktop-view {
+    display: none;
+  }
+
+  .mobile-view {
+    display: block;
+  }
+
+  .member-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .member-header-info {
+    text-align: center;
+  }
+
+  .member-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .transaction-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
 @media (max-width: 768px) {
   .page-actions {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
 
   .search-box {
     width: 100%;
   }
 
-  .member-stats {
-    grid-template-columns: 1fr;
+  .member-card-footer {
+    flex-wrap: wrap;
   }
 
-  .action-buttons {
-    flex-wrap: wrap;
+  .btn-text {
+    display: none;
+  }
+
+  .add-btn {
+    justify-content: center;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-footer button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .member-detail {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .detail-value {
+    text-align: left;
+  }
+
+  .member-card-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .member-card-header .status-badge {
+    align-self: flex-start;
+  }
+
+  .modal-header h3 {
+    font-size: 1rem;
   }
 }
 </style>

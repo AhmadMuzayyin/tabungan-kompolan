@@ -625,7 +625,7 @@ onMounted(async () => {
 
   .btn-icon {
     align-self: flex-end;
-    margin-top: -36px;
+    margin-top: 10px;
   }
 
   .transaction-body {

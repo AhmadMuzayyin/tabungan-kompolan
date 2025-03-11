@@ -6,7 +6,7 @@
         <div class="header-content">
           <div class="logo">
             <img src="/logo.svg" alt="Logo" width="36" height="36" />
-            <h1>Keuangan Organisasi</h1>
+            <h1>TASOMI</h1>
           </div>
 
           <div class="profile" @click="toggleProfileMenu" ref="profileRef">

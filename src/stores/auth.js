@@ -47,7 +47,6 @@ export const useAuthStore = defineStore('auth', {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         this.user = userCredential.user;
         await this.fetchUserProfile();
-        console.log('Logged in:', email, password);
         return userCredential.user;
       } catch (error) {
         this.error = error.message;
@@ -111,17 +110,16 @@ export const useAuthStore = defineStore('auth', {
       try {
         const docRef = doc(db, 'users', this.user.uid);
         const docSnap = await getDoc(docRef);
-        console.log("User profile data:", docSnap.data())
 
         if (docSnap.exists()) {
           this.profile = docSnap.data();
           return this.profile;
         } else {
-          console.log('No user profile found!');
           return null;
         }
       } catch (error) {
-        console.error('Error fetching user profile:', error);
+        // console.error('Error fetching user profile:', error);
+        console.error('Error fetching user profile');
         return null;
       }
     }

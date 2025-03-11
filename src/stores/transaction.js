@@ -175,7 +175,8 @@ export const useTransactionStore = defineStore('transaction', {
     },
 
     // Update transaction status (admin)
-    async updateTransactionStatus(transactionId, status, adminNotes = '') {
+    // Update transaction status (admin)
+    async updateTransactionStatus(transactionId, status, adminNotes = '', editedAmount = null) {
       this.loading = true;
       this.error = null;
       const authStore = useAuthStore();
@@ -193,16 +194,29 @@ export const useTransactionStore = defineStore('transaction', {
         }
 
         const transaction = transactionDoc.data();
-        console.log("Processing transaction:", transaction);
 
-        // Update transaction
-        await updateDoc(transactionRef, {
+        // Cek apakah jumlah telah diedit
+        const isAmountEdited = editedAmount !== null && editedAmount !== transaction.amount;
+        const finalAmount = isAmountEdited ? editedAmount : transaction.amount;
+
+        // Persiapkan data untuk update
+        const updateData = {
           status: status,
           adminNotes: adminNotes || '',
           approvedBy: authStore.user.uid,
           approverName: authStore.profile?.name || authStore.user.displayName,
           updatedAt: serverTimestamp()
-        });
+        };
+
+        // Jika jumlah diedit, tambahkan ke data update
+        if (isAmountEdited) {
+          updateData.amount = finalAmount;
+          updateData.originalAmount = transaction.amount; // Menyimpan jumlah asli untuk referensi
+          updateData.isAmountEdited = true;
+        }
+
+        // Update transaction
+        await updateDoc(transactionRef, updateData);
 
         // If approved, update user balance
         if (status === 'approved') {
@@ -210,29 +224,23 @@ export const useTransactionStore = defineStore('transaction', {
           const balanceRef = doc(db, 'balances', transaction.userId);
           const balanceDoc = await getDoc(balanceRef);
 
-          console.log("User ID:", transaction.userId);
-          console.log("Transaction amount:", transaction.amount);
-          console.log("Transaction type:", transaction.type);
-
           let currentBalance = 0;
           if (balanceDoc.exists()) {
             currentBalance = balanceDoc.data().currentBalance || 0;
           }
-          console.log("Current balance:", currentBalance);
 
           // Calculate new balance
           let newBalance = currentBalance;
           if (transaction.type === 'deposit') {
-            newBalance += Number(transaction.amount);
+            newBalance += Number(finalAmount);
           } else if (transaction.type === 'withdraw') {
-            newBalance -= Number(transaction.amount);
+            newBalance -= Number(finalAmount);
 
             // Validate withdrawal
             if (newBalance < 0) {
               throw new Error('Insufficient balance');
             }
           }
-          console.log("New balance:", newBalance);
 
           // Update balance
           await setDoc(balanceRef, {
@@ -242,7 +250,6 @@ export const useTransactionStore = defineStore('transaction', {
 
           // Verify update
           const updatedBalanceDoc = await getDoc(balanceRef);
-          console.log("Updated balance in Firestore:", updatedBalanceDoc.data()?.currentBalance);
         }
 
         return status;

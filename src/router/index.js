@@ -4,7 +4,6 @@ import { auth, db } from '../firebase/config';
 import { getDoc, doc } from 'firebase/firestore';
 
 // Lazy loading untuk optimasi performa
-const Home = () => import('../views/Home.vue');
 const Login = () => import('../views/Login.vue');
 const MemberDashboard = () => import('../views/member/Dashboard.vue');
 const MemberDeposit = () => import('../views/member/Deposit.vue');
@@ -22,8 +21,7 @@ const NotFound = () => import('../views/NotFound.vue');
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    redirect: '/login'
   },
   {
     path: '/login',
@@ -132,12 +130,12 @@ router.beforeEach(async (to, from, next) => {
       const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
       if (userDoc.exists()) {
         userRole = userDoc.data().role || 'member';
-        console.log("User role from Firestore:", userRole);
       } else {
         userRole = 'member';
       }
     } catch (error) {
-      console.error('Error getting user role:', error);
+      // console.error('Error getting user role:', error);
+      console.error('Error getting user role');
       userRole = 'member';
     }
   }

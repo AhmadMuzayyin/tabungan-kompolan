@@ -4,13 +4,13 @@
       <!-- Filters & actions -->
       <div class="filters-container">
         <div class="filters">
-          <select v-model="typeFilter" @change="applyFilters">
+          <select v-model="typeFilter" @change="applyFilters" class="filter-select">
             <option value="all">Semua Jenis</option>
             <option value="deposit">Tabungan</option>
             <option value="withdraw">Penarikan</option>
           </select>
 
-          <select v-model="sortOrder" @change="applyFilters">
+          <select v-model="sortOrder" @change="applyFilters" class="filter-select">
             <option value="newest">Terbaru</option>
             <option value="oldest">Terlama</option>
             <option value="amount-high">Jumlah (Tinggi ke Rendah)</option>
@@ -81,7 +81,7 @@
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
-                  Setujui
+                  <span class="btn-text">Setujui</span>
                 </button>
 
                 <button class="reject-btn" @click="showRejectModal(transaction)"
@@ -91,7 +91,7 @@
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
-                  Tolak
+                  <span class="btn-text">Tolak</span>
                 </button>
               </div>
             </div>
@@ -119,7 +119,7 @@
               <div class="summary-item">
                 <span class="summary-label">Jenis Transaksi:</span>
                 <span class="summary-value">{{ currentTransaction?.type === 'deposit' ? 'Tabungan' : 'Penarikan'
-                  }}</span>
+                }}</span>
               </div>
 
               <div class="summary-item">
@@ -127,7 +127,25 @@
                 <span class="summary-value">{{ currentTransaction?.userName }}</span>
               </div>
 
-              <div class="summary-item">
+              <!-- Ubah menjadi input yang dapat diedit jika modal approve -->
+              <div class="summary-item amount-field" v-if="modalType === 'approve'">
+                <span class="summary-label">Jumlah:</span>
+                <div class="editable-amount">
+                  <span class="currency-prefix">Rp</span>
+                  <input type="text" v-model="editedAmount" @input="formatEditedAmount" class="amount-input"
+                    :class="{ 'is-changed': isAmountChanged }" />
+                  <button class="reset-amount" @click="resetAmount" title="Reset ke nilai awal" v-if="isAmountChanged">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                      <path d="M3 3v5h5"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tampilan readonly untuk modal reject -->
+              <div class="summary-item" v-else>
                 <span class="summary-label">Jumlah:</span>
                 <span class="summary-value">Rp {{ formatCurrency(currentTransaction?.amount || 0) }}</span>
               </div>
@@ -141,12 +159,31 @@
                 <span class="summary-label">Catatan Anggota:</span>
                 <span class="summary-value">{{ currentTransaction?.notes }}</span>
               </div>
+
+              <!-- Notifikasi perubahan nominal -->
+              <div class="amount-change-notice" v-if="isAmountChanged && modalType === 'approve'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <p>
+                  Nominal transaksi telah diubah dari
+                  <strong>Rp {{ formatCurrency(currentTransaction?.amount || 0) }}</strong>
+                  menjadi
+                  <strong>Rp {{ formatCurrency(getNumericAmount()) }}</strong>
+                </p>
+              </div>
             </div>
 
             <div class="admin-notes">
-              <label for="adminNotes">Catatan Admin (Opsional):</label>
+              <label for="adminNotes">Catatan Admin (Opsional)</label>
               <textarea id="adminNotes" v-model="adminNotes" rows="3"
-                :placeholder="modalType === 'approve' ? 'Tambahkan catatan untuk persetujuan ini...' : 'Berikan alasan penolakan...'"></textarea>
+                :placeholder="getAdminNotesPlaceholder()"></textarea>
+              <div class="form-hint" v-if="isAmountChanged">
+                Berikan alasan perubahan nominal transaksi
+              </div>
             </div>
 
             <div v-if="modalType === 'reject'" class="warning-message">
@@ -199,6 +236,7 @@ const modalType = ref('approve'); // 'approve' or 'reject'
 const currentTransaction = ref(null);
 const adminNotes = ref('');
 const isProcessing = ref(false);
+const editedAmount = ref('');
 
 // Computed
 const filteredTransactions = computed(() => {
@@ -239,11 +277,58 @@ const filteredTransactions = computed(() => {
   return filtered;
 });
 
+const isAmountChanged = computed(() => {
+  if (!currentTransaction.value) return false;
+
+  const originalAmount = currentTransaction.value.amount;
+  const newAmount = getNumericAmount();
+
+  return originalAmount !== newAmount;
+});
+
 // Methods
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('id-ID').format(amount);
 };
+const formatEditedAmount = () => {
+  if (!editedAmount.value) {
+    editedAmount.value = '0';
+    return;
+  }
 
+  // Hapus semua karakter non-numerik
+  let numericValue = editedAmount.value.replace(/\D/g, '');
+
+  // Hindari angka 0 di depan
+  if (numericValue.startsWith('0') && numericValue.length > 1) {
+    numericValue = numericValue.substring(1);
+  }
+
+  // Format dengan pemisah ribuan
+  editedAmount.value = new Intl.NumberFormat('id-ID').format(parseInt(numericValue) || 0);
+};
+
+const getNumericAmount = () => {
+  // Mengambil nilai numerik dari editedAmount
+  if (!editedAmount.value) return 0;
+  return parseInt(editedAmount.value.replace(/\D/g, '')) || 0;
+};
+
+const resetAmount = () => {
+  if (currentTransaction.value) {
+    editedAmount.value = formatCurrency(currentTransaction.value.amount);
+  }
+};
+
+const getAdminNotesPlaceholder = () => {
+  if (modalType.value === 'approve') {
+    return isAmountChanged.value
+      ? 'Berikan alasan perubahan nominal transaksi...'
+      : 'Tambahkan catatan untuk persetujuan ini...';
+  } else {
+    return 'Berikan alasan penolakan...';
+  }
+};
 const formatDate = (timestamp) => {
   if (!timestamp) return '';
 
@@ -290,6 +375,7 @@ const showApproveModal = (transaction) => {
   currentTransaction.value = transaction;
   modalType.value = 'approve';
   adminNotes.value = '';
+  editedAmount.value = formatCurrency(transaction.amount);
   showModal.value = true;
 };
 
@@ -314,18 +400,25 @@ const approveTransaction = async () => {
   isProcessing.value = true;
 
   try {
+    // Mendapatkan jumlah baru dari input yang telah diedit
+    const newAmount = getNumericAmount();
+
+    // Mengirim jumlah baru ke fungsi updateTransactionStatus
     await transactionStore.updateTransactionStatus(
       currentTransaction.value.id,
       'approved',
-      adminNotes.value
+      adminNotes.value,
+      newAmount  // Menambahkan parameter baru untuk jumlah yang diedit
     );
-
-    window.showNotification('Transaksi berhasil disetujui', 'success');
 
     // Remove from local list
     transactions.value = transactions.value.filter(t => t.id !== currentTransaction.value.id);
 
-    closeModal();
+    showModal.value = false;
+    currentTransaction.value = null;
+    adminNotes.value = '';
+
+    window.showNotification('Transaksi berhasil disetujui', 'success');
   } catch (error) {
     console.error('Error approving transaction:', error);
     window.showNotification('Gagal menyetujui transaksi: ' + error.message, 'error');
@@ -345,13 +438,11 @@ const rejectTransaction = async () => {
       'rejected',
       adminNotes.value
     );
-
-    window.showNotification('Transaksi berhasil ditolak', 'success');
-
-    // Remove from local list
     transactions.value = transactions.value.filter(t => t.id !== currentTransaction.value.id);
-
-    closeModal();
+    showModal.value = false;
+    currentTransaction.value = null;
+    adminNotes.value = '';
+    window.showNotification('Transaksi berhasil ditolak', 'success');
   } catch (error) {
     console.error('Error rejecting transaction:', error);
     window.showNotification('Gagal menolak transaksi: ' + error.message, 'error');
@@ -395,9 +486,10 @@ onMounted(async () => {
 .filters {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
-.filters select {
+.filter-select {
   padding: 10px 16px;
   border-radius: 8px;
   border: 1px solid #d1d5db;
@@ -688,6 +780,7 @@ onMounted(async () => {
   max-height: 90vh;
   overflow-y: auto;
   z-index: 51;
+  margin: 0 16px;
 }
 
 .modal-header {
@@ -822,10 +915,25 @@ onMounted(async () => {
 }
 
 /* Responsive adjustments */
+@media (max-width: 1200px) {
+  .transactions-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .filters-container {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .filters {
+    width: 100%;
+  }
+
+  .filter-select {
+    flex: 1;
+    min-width: 0;
   }
 
   .search-box {
@@ -834,6 +942,49 @@ onMounted(async () => {
 
   .transactions-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-select {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+
+  .transaction-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .transaction-badge {
+    align-self: flex-start;
+  }
+
+  .btn-text {
+    display: none;
+  }
+
+  .approve-btn,
+  .reject-btn {
+    padding: 10px;
+  }
+
+  .summary-item {
+    flex-direction: column;
+    margin-bottom: 12px;
+  }
+
+  .summary-label {
+    margin-bottom: 4px;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-footer button {
+    width: 100%;
   }
 }
 </style>

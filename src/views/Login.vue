@@ -7,6 +7,23 @@
       </div>
 
       <div class="login-form">
+        <!-- Admin login (for initial admin setup) -->
+        <form @submit.prevent="loginWithEmail">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" v-model="email" required placeholder="admin@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" v-model="password" required placeholder="••••••••" />
+          </div>
+
+          <button type="submit" class="btn btn-primary" :disabled="authStore.loading">
+            {{ authStore.loading ? 'Sedang Masuk...' : 'Masuk' }}
+          </button>
+        </form>
+        <div class="divider">atau</div>
         <!-- Google login -->
         <button @click="loginWithGoogle" class="btn btn-google" :disabled="authStore.loading">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48">
@@ -25,25 +42,6 @@
           </svg>
           Masuk dengan Google
         </button>
-
-        <!-- Admin login (for initial admin setup) -->
-        <div class="divider">atau</div>
-
-        <form @submit.prevent="loginWithEmail">
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" v-model="email" required placeholder="admin@example.com" />
-          </div>
-
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" v-model="password" required placeholder="••••••••" />
-          </div>
-
-          <button type="submit" class="btn btn-primary" :disabled="authStore.loading">
-            {{ authStore.loading ? 'Sedang Masuk...' : 'Masuk' }}
-          </button>
-        </form>
 
         <div class="error-message" v-if="authStore.error">
           {{ authStore.error }}
@@ -176,6 +174,7 @@ const loginWithEmail = async () => {
   align-items: center;
   justify-content: center;
   gap: 12px;
+  margin-top: 10px;
 }
 
 .btn:disabled {

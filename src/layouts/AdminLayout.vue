@@ -10,18 +10,12 @@
       </svg>
     </button>
     <div v-if="isMobile && !sidebarCollapsed" class="sidebar-overlay" @click="toggleSidebar"></div>
+
     <!-- Sidebar -->
     <aside class="sidebar" :class="{ 'sidebar-collapsed': sidebarCollapsed, 'mobile-sidebar': isMobile }">
       <div class="sidebar-header">
         <img src="/logo.svg" alt="Logo" width="36" height="36" />
-        <h1 v-if="!sidebarCollapsed">Keuangan Organisasi</h1>
-        <button class="toggle-btn" @click="toggleSidebar">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path v-if="sidebarCollapsed" d="M13 17l5-5-5-5M6 17l5-5-5-5"></path>
-            <path v-else d="M11 17l-5-5 5-5M18 17l-5-5 5-5"></path>
-          </svg>
-        </button>
+        <h1 v-if="!sidebarCollapsed && !isMobile">TASOMI</h1>
       </div>
 
       <nav class="sidebar-nav">
@@ -33,7 +27,7 @@
             <rect x="14" y="12" width="7" height="9"></rect>
             <rect x="3" y="16" width="7" height="5"></rect>
           </svg>
-          <span v-if="!sidebarCollapsed">Dashboard</span>
+          <span v-if="!sidebarCollapsed && !isMobile">Dashboard</span>
         </router-link>
 
         <router-link to="/admin/approvals" class="nav-item" :class="{ active: isActive('/admin/approvals') }">
@@ -46,7 +40,7 @@
             <span class="notification-badge" v-if="pendingCount > 0">{{ pendingCount > 9 ? '9+' : pendingCount
               }}</span>
           </div>
-          <span v-if="!sidebarCollapsed">Approvals</span>
+          <span v-if="!sidebarCollapsed && !isMobile">Approvals</span>
         </router-link>
 
         <router-link to="/admin/members" class="nav-item" :class="{ active: isActive('/admin/members') }">
@@ -57,7 +51,7 @@
             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
           </svg>
-          <span v-if="!sidebarCollapsed">Anggota</span>
+          <span v-if="!sidebarCollapsed && !isMobile">Anggota</span>
         </router-link>
 
         <router-link to="/admin/reports" class="nav-item" :class="{ active: isActive('/admin/reports') }">
@@ -69,7 +63,7 @@
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          <span v-if="!sidebarCollapsed">Laporan</span>
+          <span v-if="!sidebarCollapsed && !isMobile">Laporan</span>
         </router-link>
       </nav>
 
@@ -82,65 +76,64 @@
             </div>
           </div>
 
-          <div class="profile-info" v-if="!sidebarCollapsed">
+          <div class="profile-info" v-if="!sidebarCollapsed && !isMobile">
             <span class="profile-name">{{ authStore.profile?.name }}</span>
             <span class="profile-role">Admin</span>
           </div>
-
-          <!-- Profile dropdown menu -->
-          <div v-if="showProfileMenu" class="profile-menu" :class="{ 'collapsed': sidebarCollapsed }">
-            <router-link to="/admin/profile" class="profile-menu-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              <span>Profil</span>
-            </router-link>
-
-            <router-link to="/admin/settings" class="profile-menu-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path
-                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                </path>
-              </svg>
-              <span>Pengaturan</span>
-            </router-link>
-
-            <div class="profile-menu-divider"></div>
-
-            <button @click="logout" class="profile-menu-item logout">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
-              <span>Keluar</span>
-            </button>
-          </div>
         </div>
+      </div>
+
+      <!-- Profile dropdown menu dipindahkan ke luar sidebar untuk z-index yang lebih tinggi -->
+      <div v-if="showProfileMenu" class="profile-menu" :class="{ 'collapsed': sidebarCollapsed || isMobile }">
+        <router-link to="/admin/profile" class="profile-menu-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Profil</span>
+        </router-link>
+
+        <router-link to="/admin/settings" class="profile-menu-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
+          </svg>
+          <span>Pengaturan</span>
+        </router-link>
+
+        <div class="profile-menu-divider"></div>
+
+        <button @click="logout" class="profile-menu-item logout">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Keluar</span>
+        </button>
       </div>
     </aside>
 
     <!-- Main content -->
     <main class="main-content" :class="{ 'mobile-content': isMobile }">
       <header class="main-header">
+        <button class="toggle-btn" @click="toggleSidebar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path v-if="sidebarCollapsed" d="M13 17l5-5-5-5M6 17l5-5-5-5"></path>
+            <path v-else d="M11 17l-5-5 5-5M18 17l-5-5 5-5"></path>
+          </svg>
+        </button>
         <div class="header-title">
           <h2>{{ pageTitle }}</h2>
         </div>
 
         <div class="header-actions">
-          <div class="search-box">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input type="text" placeholder="Cari..." v-model="searchQuery" @input="$emit('search', searchQuery)" />
-          </div>
 
           <button class="notification-btn" @click="toggleNotifications" ref="notificationRef">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -188,6 +181,40 @@
         <slot></slot>
       </div>
     </main>
+
+    <div v-if="showProfileMenu" class="profile-menu" :class="{ 'collapsed': sidebarCollapsed || isMobile }">
+      <router-link to="/admin/profile" class="profile-menu-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Profil</span>
+      </router-link>
+
+      <router-link to="/admin/settings" class="profile-menu-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+          </path>
+        </svg>
+        <span>Pengaturan</span>
+      </router-link>
+
+      <div class="profile-menu-divider"></div>
+
+      <button @click="logout" class="profile-menu-item logout">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        <span>Keluar</span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -204,7 +231,6 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['search']);
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -215,9 +241,9 @@ const isMobile = ref(false);
 const sidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true');
 const showProfileMenu = ref(false);
 const showNotifications = ref(false);
-const searchQuery = ref('');
 const profileRef = ref(null);
 const notificationRef = ref(null);
+const menuPosition = ref({ top: '0', left: '0' });
 
 // Computed
 const pageTitle = computed(() => props.title || 'Dashboard');
@@ -235,7 +261,19 @@ const toggleSidebar = () => {
 const toggleProfileMenu = () => {
   showProfileMenu.value = !showProfileMenu.value;
   if (showProfileMenu.value) {
-    showNotifications.value = false;
+    getMenuPosition();
+    window.addEventListener('resize', getMenuPosition);
+  } else {
+    window.removeEventListener('resize', getMenuPosition);
+  }
+};
+const getMenuPosition = () => {
+  if (profileRef.value) {
+    const rect = profileRef.value.getBoundingClientRect();
+    menuPosition.value = {
+      top: `${rect.top}px`,
+      left: isMobile.value || sidebarCollapsed.value ? `${rect.right + 5}px` : `${rect.left}px`
+    };
   }
 };
 
@@ -296,6 +334,11 @@ watch(route, () => {
   // Close menus when route changes
   showProfileMenu.value = false;
   showNotifications.value = false;
+
+  // Otomatis sembunyikan sidebar di mobile ketika berpindah halaman
+  if (isMobile.value) {
+    sidebarCollapsed.value = true;
+  }
 });
 
 // Lifecycle hooks
@@ -316,6 +359,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', closeProfileMenu);
   document.removeEventListener('click', closeNotifications);
 });
+
 const checkScreenSize = () => {
   isMobile.value = window.innerWidth < 768;
   // Auto-collapse sidebar on mobile
@@ -323,6 +367,7 @@ const checkScreenSize = () => {
     sidebarCollapsed.value = true;
   }
 };
+
 const layoutClasses = computed(() => ({
   'is-mobile': isMobile.value
 }));
@@ -355,13 +400,27 @@ const layoutClasses = computed(() => ({
 
 .mobile-sidebar {
   z-index: 20;
-  width: 280px;
+  width: 60px !important;
+  /* Lebar tetap 60px untuk mobile */
   transform: translateX(0);
   transition: transform 0.3s ease;
 }
 
 .mobile-sidebar.sidebar-collapsed {
   transform: translateX(-100%);
+}
+
+.mobile-sidebar .nav-item {
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+.mobile-sidebar .sidebar-header h1 {
+  display: none;
+}
+
+.mobile-sidebar .toggle-btn {
+  margin-left: 0;
 }
 
 .mobile-content {
@@ -375,36 +434,7 @@ const layoutClasses = computed(() => ({
   width: 100%;
   padding-left: 60px;
   /* Space for menu button */
-}
-
-@media (max-width: 768px) {
-  .search-box {
-    display: none;
-  }
-
-  .header-actions {
-    justify-content: flex-end;
-  }
-
-  /* Mobile chart adjustments */
-  .charts-container {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Mobile stats */
-  .stats-container {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .chart-content {
-    height: 250px;
-  }
-
-  .main-content {
-    padding: 16px 12px;
-  }
+  z-index: 10;
 }
 
 .admin-layout {
@@ -414,7 +444,8 @@ const layoutClasses = computed(() => ({
 
 /* Sidebar styles */
 .sidebar {
-  width: 260px;
+  width: 280px;
+  /* Lebar lebih besar */
   background-color: white;
   border-right: 1px solid #e5e7eb;
   display: flex;
@@ -437,6 +468,7 @@ const layoutClasses = computed(() => ({
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid #e5e7eb;
+  position: relative;
 }
 
 .sidebar-header h1 {
@@ -445,11 +477,13 @@ const layoutClasses = computed(() => ({
   color: var(--primary-color);
   white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
 }
 
 .toggle-btn {
-  margin-left: auto;
-  background: transparent;
+  position: relative;
+  background: #f3f4f6;
   border: none;
   cursor: pointer;
   color: #6b7280;
@@ -457,9 +491,148 @@ const layoutClasses = computed(() => ({
   align-items: center;
   justify-content: center;
   padding: 8px;
-  border-radius: 4px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  z-index: 5;
+}
+
+.toggle-btn:hover {
+  background-color: #e5e7eb;
+}
+
+.mark-all-read:hover {
+  background-color: rgba(79, 70, 229, 0.1);
+}
+
+.notifications-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.notifications-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  text-decoration: none;
+  color: var(--text-color);
   transition: background-color 0.2s;
 }
+
+.notification-item:hover {
+  background-color: #f9fafb;
+}
+
+.notification-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-icon.pending {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content p {
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.notification-time {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.content {
+  padding: 24px;
+  background-color: #f9fafb;
+  min-height: calc(100vh - 70px);
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .toggle-btn {
+    display: none;
+  }
+
+  .sidebar {
+    width: 80px;
+  }
+
+  .sidebar h1 {
+    display: none;
+  }
+
+  .sidebar .profile-info {
+    display: none;
+  }
+
+  .sidebar-collapsed {
+    width: 0;
+    opacity: 0;
+  }
+
+  .main-content {
+    flex: 1;
+    margin-left: 280px;
+    transition: margin-left 0.3s ease;
+  }
+
+  .sidebar-collapsed+.main-content {
+    margin-left: 80px;
+  }
+
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 280px;
+  }
+
+  .sidebar-collapsed {
+    width: 0;
+    opacity: 0;
+  }
+
+  .main-content {
+    margin-left: 280px;
+  }
+
+  .sidebar-collapsed+.main-content {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-sidebar {
+    width: 60px !important;
+  }
+
+  .mobile-content {
+    margin-left: 0 !important;
+  }
+
+  .mobile-sidebar.sidebar-collapsed {
+    transform: translateX(-100%);
+  }
+}
+
 
 .toggle-btn:hover {
   background-color: #f3f4f6;
@@ -533,8 +706,10 @@ const layoutClasses = computed(() => ({
 }
 
 .sidebar-footer {
-  padding: 16px;
+  padding: 12px 16px;
   border-top: 1px solid #e5e7eb;
+  background-color: white;
+  position: relative;
 }
 
 .profile {
@@ -551,12 +726,17 @@ const layoutClasses = computed(() => ({
   border-radius: 50%;
   overflow: hidden;
   background-color: #e5e7eb;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .profile-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 50%;
 }
 
 .profile-avatar-placeholder {
@@ -569,12 +749,14 @@ const layoutClasses = computed(() => ({
   color: white;
   font-weight: 600;
   font-size: 0.9rem;
+  border-radius: 50%;
 }
 
 .profile-info {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  flex: 1;
 }
 
 .profile-name {
@@ -590,20 +772,23 @@ const layoutClasses = computed(() => ({
   color: #6b7280;
 }
 
+/* Perbaikan dropdown menu profil */
 .profile-menu {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 0;
+  position: fixed;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 200px;
-  z-index: 30;
+  z-index: 1000;
+  top: auto;
+  bottom: 85px;
+  left: 30px;
 }
 
+/* Posisi untuk collapsed sidebar atau mobile */
 .profile-menu.collapsed {
-  left: auto;
-  right: 0;
+  bottom: 85px;
+  left: 16px;
 }
 
 .profile-menu-item {
@@ -635,6 +820,28 @@ const layoutClasses = computed(() => ({
   height: 1px;
   background-color: #e5e7eb;
   margin: 4px 0;
+}
+
+/* Mobile and tablet adjustments */
+@media (max-width: 1024px) {
+  .sidebar-footer {
+    padding: 10px;
+  }
+
+  .profile {
+    justify-content: center;
+  }
+
+  .profile-menu {
+    width: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-menu.collapsed {
+    bottom: 70px;
+    left: 16px;
+  }
 }
 
 /* Main content styles */
@@ -672,33 +879,6 @@ const layoutClasses = computed(() => ({
   align-items: center;
   gap: 16px;
   position: relative;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #f3f4f6;
-  border-radius: 8px;
-  padding: 0 12px;
-  height: 40px;
-  width: 240px;
-  transition: width 0.3s;
-}
-
-.search-box:focus-within {
-  background-color: white;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
-  width: 300px;
-}
-
-.search-box input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 0.9rem;
-  padding: 4px 0;
-  outline: none;
 }
 
 .notification-btn {
@@ -751,107 +931,6 @@ const layoutClasses = computed(() => ({
   font-size: 0.85rem;
   cursor: pointer;
   padding: 4px 8px;
-  transition: background-color 0.2s;
-  border-radius: 4px;
-}
-
-.mark-all-read:hover {
-  background-color: rgba(79, 70, 229, 0.1);
-}
-
-.notifications-empty {
-  padding: 24px 16px;
-  text-align: center;
-  color: #6b7280;
-  font-size: 0.9rem;
-}
-
-.notifications-list {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.notification-item {
-  display: flex;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f3f4f6;
-  text-decoration: none;
-  color: var(--text-color);
-  transition: background-color 0.2s;
-}
-
-.notification-item:hover {
-  background-color: #f9fafb;
-}
-
-.notification-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.notification-icon.pending {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-
-.notification-content {
-  flex: 1;
-}
-
-.notification-content p {
-  margin-bottom: 4px;
-  font-size: 0.9rem;
-}
-
-.notification-time {
-  font-size: 0.8rem;
-  color: #6b7280;
-}
-
-.content {
-  margin-top: 70px;
-  padding: 24px;
-  background-color: #f9fafb;
-  min-height: calc(100vh - 70px);
-}
-
-/* Responsive styles */
-@media (max-width: 1024px) {
-  .sidebar {
-    width: 80px;
-  }
-
-  .sidebar-collapsed {
-    width: 0;
-    opacity: 0;
-  }
-
-  .main-content {
-    margin-left: 80px;
-  }
-
-  .sidebar-collapsed+.main-content {
-    margin-left: 0;
-  }
-
-  .search-box {
-    width: 160px;
-  }
-
-  .search-box:focus-within {
-    width: 200px;
-  }
-}
-
-@media (max-width: 640px) {
-  .search-box {
-    display: none;
-  }
+  transition: background-
 }
 </style>
